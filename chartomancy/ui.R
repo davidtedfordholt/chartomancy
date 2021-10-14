@@ -19,16 +19,25 @@ shinyUI(fluidPage(
     sidebarLayout(
         sidebarPanel(
             selectInput(
-                selected_key,
-                "Select key",
+                "selected_key",
+                "Key:",
                 keys,
                 multiple = FALSE
-            )
+            ),
+            sliderInput(
+                "horizon",
+                "Horizon:",
+                1, 365,
+                30
+            ),
+            actionButton(
+                "rem_point", 
+                "Remove Last Point")
         ),
 
         # Show a plot of the generated distribution
         mainPanel(
-            plotOutput("data_plot"),
+            plotOutput("data_plot", click = "plot_click"),
             tableOutput("forecast_table")
         )
     )
