@@ -29,6 +29,11 @@ shinyServer(function(input, output) {
             bind_rows(predictions$ts) %>%
             as_tsibble()
         
+        continuous_to_plot <-
+            past_to_plot %>%
+            bind_rows(predictions$ts) %>%
+            as_tsibble()
+        
         max_date <- as.Date(max(past_to_plot$x) + as.integer(input$horizon))
                 
         output_plot <- ggplot() +
@@ -37,7 +42,7 @@ shinyServer(function(input, output) {
         
         if (input$show_trend) {
             output_plot <- output_plot +
-                geom_smooth(aes(x, y), past_to_plot, color = 'dodgerblue', se = FALSE)
+                geom_smooth(aes(x, y), past_to_plot, color = 'orange', se = FALSE)
         }
         
         if (nrow(predictions$ts) == 1) {
@@ -47,21 +52,29 @@ shinyServer(function(input, output) {
         } else {
             output_plot <- output_plot +
                 geom_point(aes(x, y), future_to_plot, color = 'orange', size = 2) +
-                geom_smooth(aes(x, y), future_to_plot, color = 'orange')
+                geom_smooth(aes(x, y), future_to_plot, color = 'orange', se = FALSE)
         }
         
         output_plot
 
     })
     
+    observeEvent(input$selected_key, {
+        predictions$ts <- data.frame(
+            x = as.Date(character()),
+            y = numeric())
+    })
+    
     observeEvent(input$plot_click, {
         new_point <- data.frame(x = as.Date(input$plot_click$x, origin = "1970-01-01"),
                               y = input$plot_click$y)
+        if (new_point$x %in% predictions$ts$x) {
+            predictions$ts <- predictions$ts[-which(predictions$ts$x == new_point$x), ]
+        }
         predictions$ts <- bind_rows(predictions$ts, new_point)
     })
     
     observeEvent(input$remove_point, {
-        # row_removed <- predictions$ts[-nrow(predictions$ts), ]
         predictions$ts <- predictions$ts[-nrow(predictions$ts), ]
     })
     
