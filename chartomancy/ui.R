@@ -24,21 +24,30 @@ shinyUI(fluidPage(
                 keys,
                 multiple = FALSE
             ),
+            checkboxInput(
+                "show_trend",
+                "Show Trendline",
+                FALSE
+            ),
             sliderInput(
                 "horizon",
                 "Horizon:",
                 1, 365,
-                30
+                365
             ),
             actionButton(
-                "rem_point", 
-                "Remove Last Point")
+                "remove_point", 
+                "Remove Last Point"),
+            br(),
+            br(),
+            br(),
+            br(),
+            tableOutput("forecast_table")
         ),
 
         # Show a plot of the generated distribution
         mainPanel(
-            plotOutput("data_plot", click = "plot_click"),
-            tableOutput("forecast_table")
+            plotOutput("data_plot", click = "plot_click")
         )
     )
 ))
