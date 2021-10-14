@@ -12,6 +12,12 @@ library(shiny)
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
 
+    predictions <- reactiveValues()
+    predictions$ts <- data.frame(
+        x = as.Date(character()),
+        y = numeric())
+    
+    
     output$distPlot <- renderPlot({
 
         # generate bins based on input$bins from ui.R
@@ -21,6 +27,14 @@ shinyServer(function(input, output) {
         # draw the histogram with the specified number of bins
         hist(x, breaks = bins, col = 'darkgray', border = 'white')
 
+    })
+    
+    output$data_plot <- renderPlot({
+        predictions$ts %>%
+            as_tsibble() %>%
+            autoplot()
+            
+        
     })
 
 })
