@@ -61,7 +61,8 @@ shinyServer(function(input, output) {
     })
     
     observeEvent(input$remove_point, {
-        predictions$ts[-nrow(predictions$ts), ] <- predictions$ts[-nrow(predictions$ts), ]
+        # row_removed <- predictions$ts[-nrow(predictions$ts), ]
+        predictions$ts <- predictions$ts[-nrow(predictions$ts), ]
     })
     
     ## 5. render a table of the growing dataframe ##
