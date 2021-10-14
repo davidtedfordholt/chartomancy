@@ -31,31 +31,46 @@ shinyServer(function(input, output) {
         
         max_date <- as.Date(max(past_to_plot$x) + as.integer(input$horizon))
                 
-        ggplot() +
+        output_plot <- ggplot() +
             geom_line(aes(x, y), past_to_plot, color = 'dodgerblue') +
-            geom_point(aes(x, y), future_to_plot, color = 'orange', size = 2) +
-            geom_smooth(aes(x, y), future_to_plot, color = 'orange') +
             xlim(as.Date(min(past_to_plot$x)), max_date)
+        
+        if (input$show_trend) {
+            output_plot <- output_plot +
+                geom_smooth(aes(x, y), past_to_plot, color = 'dodgerblue', se = FALSE)
+        }
+        
+        if (nrow(predictions$ts) == 1) {
+            output_plot <- output_plot +
+                geom_point(aes(x, y), future_to_plot, color = 'orange', size = 2) +
+                geom_line(aes(x, y), future_to_plot, color = 'orange')
+        } else {
+            output_plot <- output_plot +
+                geom_point(aes(x, y), future_to_plot, color = 'orange', size = 2) +
+                geom_smooth(aes(x, y), future_to_plot, color = 'orange')
+        }
+        
+        output_plot
 
     })
     
     observeEvent(input$plot_click, {
         new_point <- data.frame(x = as.Date(input$plot_click$x, origin = "1970-01-01"),
                               y = input$plot_click$y)
-        if (new_point$x %in% predictions$ts$x) {
-            predictions$ts <- predictions$ts[-which(predictions$ts$x == new_point$x), ]
-        }
         predictions$ts <- bind_rows(predictions$ts, new_point)
     })
     
-    ## 4. remove row on actionButton click ##
-    observeEvent(input$rem_point, {
+    observeEvent(input$remove_point, {
         predictions$ts[-nrow(predictions$ts), ] <- predictions$ts[-nrow(predictions$ts), ]
     })
     
     ## 5. render a table of the growing dataframe ##
     output$forecast_table <- renderTable({
-        predictions$ts
+        data.frame(
+            Date = format(predictions$ts$x,'%Y-%m-%d'),
+            Value = predictions$ts$y
+        )
+
     })
 
 })
