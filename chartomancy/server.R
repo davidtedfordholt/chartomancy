@@ -45,14 +45,27 @@ shinyServer(function(input, output) {
                 geom_smooth(aes(x, y), past_to_plot, color = 'orange', se = FALSE)
         }
         
+        if (nrow(predictions$ts) > 0) {
+            output_plot <- output_plot +
+                geom_point(aes(x, y), future_to_plot, color = 'orange', size = 2)
+        }
+        
         if (nrow(predictions$ts) == 1) {
             output_plot <- output_plot +
-                geom_point(aes(x, y), future_to_plot, color = 'orange', size = 2) +
                 geom_line(aes(x, y), future_to_plot, color = 'orange')
-        } else {
-            output_plot <- output_plot +
-                geom_point(aes(x, y), future_to_plot, color = 'orange', size = 2) +
-                geom_smooth(aes(x, y), future_to_plot, color = 'orange', se = FALSE)
+        } else if (nrow(predictions$ts) > 1) {
+            if (input$smooth_method == 'loess') {
+                output_plot <- output_plot +
+                    geom_smooth(aes(x, y), future_to_plot, color = 'orange', se = FALSE)
+            } else if (input$smooth_method == 'spline') {
+                if (nrow(predictions$ts) < 4) {
+                    output_plot <- output_plot +
+                        geom_line(aes(x, y), future_to_plot, color = 'orange')
+                } else {
+                    output_plot <- output_plot +
+                        geom_spline(aes(x, y), future_to_plot, color = 'orange')
+                }
+            }
         }
         
         output_plot

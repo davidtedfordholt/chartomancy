@@ -29,6 +29,12 @@ shinyUI(fluidPage(
                 "Show Trendline",
                 FALSE
             ),
+            selectInput(
+                "smooth_method",
+                "Smoothing Method:",
+                c('loess', 'spline'),
+                multiple = FALSE
+            ),
             sliderInput(
                 "horizon",
                 "Horizon:",
